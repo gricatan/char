@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 # Variables
 APP_DIR="/opt/battle-arena"
 SERVICE_NAME="battle-arena"
-PYTHON_VERSION="3.11"
+PYTHON_VERSION="3.12"
 
 echo -e "${YELLOW}📦 Installation des dépendances système...${NC}"
 sudo apt-get update
