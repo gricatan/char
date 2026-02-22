@@ -128,6 +128,11 @@ class GameEngine:
     
     def _update_physics(self):
         """Mise à jour physique - déplacement des balles"""
+
+        """----------------------------------------------------------------------------------------------
+        PHYSIQUE A MODIFIEZ, REBON SUR OBSTACLE
+        """
+
         bullets_to_remove = []
         
         for bullet_id, bullet in self.bullets.items():

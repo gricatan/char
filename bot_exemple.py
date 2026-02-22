@@ -9,7 +9,7 @@ import random
 
 
 # ============ CONFIGURATION ============
-API_URL = "http://localhost:8000"  # Adresse du serveur
+API_URL = "http://72.62.50.21:8000"  # Adresse du serveur
 USERNAME = "SimpleBot"              # Ton nom
 
 
@@ -97,24 +97,6 @@ def distance(x1, y1, x2, y2):
 
 # ============ STRATÉGIES ============
 
-def strategie_aleatoire(player_id):
-    """
-    Stratégie 1: Mouvement et tir aléatoires
-    Le bot le plus simple possible
-    """
-    # Bouger dans une direction aléatoire
-    dir_x = random.uniform(-1, 1)
-    dir_y = random.uniform(-1, 1)
-    bouger(player_id, dir_x, dir_y)
-    
-    # Tirer dans une direction aléatoire
-    tir_x = random.uniform(-1, 1)
-    tir_y = random.uniform(-1, 1)
-    tirer(player_id, tir_x, tir_y)
-    
-    print("🎲 Mouvement aléatoire")
-
-
 def strategie_chasseur(player_id):
     """
     Stratégie 2: Chasser l'ennemi le plus proche
@@ -164,110 +146,6 @@ def strategie_chasseur(player_id):
     print(f"   Ma vie: {moi['health']} HP | Mes kills: {moi['kills']}")
 
 
-def strategie_fuyard(player_id):
-    """
-    Stratégie 3: Fuir et tirer de loin
-    Bot défensif
-    """
-    state = voir_etat()
-    if not state:
-        return
-    
-    moi = trouver_moi(state, player_id)
-    if not moi:
-        return
-    
-    ennemis = trouver_ennemis(state, player_id)
-    
-    if not ennemis:
-        bouger(player_id, random.uniform(-1, 1), random.uniform(-1, 1))
-        return
-    
-    # Trouver l'ennemi le plus proche
-    ennemi_proche = min(ennemis, 
-                       key=lambda e: distance(moi['x'], moi['y'], e['x'], e['y']))
-    
-    dist = distance(moi['x'], moi['y'], ennemi_proche['x'], ennemi_proche['y'])
-    
-    # Direction vers l'ennemi
-    dir_x = ennemi_proche['x'] - moi['x']
-    dir_y = ennemi_proche['y'] - moi['y']
-    
-    if dist < 20:
-        # Trop proche! FUIR!
-        bouger(player_id, -dir_x, -dir_y)  # Direction opposée
-        print(f"🏃 FUITE! Ennemi trop proche ({dist:.1f})")
-    else:
-        # Bonne distance, tirer
-        tirer(player_id, dir_x, dir_y)
-        print(f"🎯 Tir de loin ({dist:.1f})")
-    
-    print(f"   HP: {moi['health']} | Kills: {moi['kills']}")
-
-
-def strategie_sniper(player_id):
-    """
-    Stratégie 4: Rester immobile et tirer
-    Sniper statique
-    """
-    state = voir_etat()
-    if not state:
-        return
-    
-    moi = trouver_moi(state, player_id)
-    if not moi:
-        return
-    
-    ennemis = trouver_ennemis(state, player_id)
-    
-    if ennemis:
-        # Tirer sur l'ennemi le plus proche
-        ennemi = min(ennemis,
-                    key=lambda e: distance(moi['x'], moi['y'], e['x'], e['y']))
-        
-        dir_x = ennemi['x'] - moi['x']
-        dir_y = ennemi['y'] - moi['y']
-        
-        if tirer(player_id, dir_x, dir_y):
-            print(f"🎯 SNIPE sur {ennemi['username']}")
-    
-    print(f"   HP: {moi['health']} | Kills: {moi['kills']}")
-
-
-def strategie_kamikaze(player_id):
-    """
-    Stratégie 5: Foncer droit sur l'ennemi
-    Très agressif
-    """
-    state = voir_etat()
-    if not state:
-        return
-    
-    moi = trouver_moi(state, player_id)
-    if not moi:
-        return
-    
-    ennemis = trouver_ennemis(state, player_id)
-    
-    if ennemis:
-        # Foncer sur l'ennemi le plus proche
-        ennemi = min(ennemis,
-                    key=lambda e: distance(moi['x'], moi['y'], e['x'], e['y']))
-        
-        dir_x = ennemi['x'] - moi['x']
-        dir_y = ennemi['y'] - moi['y']
-        
-        # FONCE!
-        bouger(player_id, dir_x, dir_y)
-        tirer(player_id, dir_x, dir_y)
-        
-        print(f"⚔️ CHARGE sur {ennemi['username']}!")
-    else:
-        bouger(player_id, random.uniform(-1, 1), random.uniform(-1, 1))
-    
-    print(f"   HP: {moi['health']} | Kills: {moi['kills']}")
-
-
 # ============ BOUCLE PRINCIPALE ============
 
 def jouer(strategie="chasseur", delai=0.3):
@@ -297,11 +175,7 @@ def jouer(strategie="chasseur", delai=0.3):
     
     # Choisir la stratégie
     strategies = {
-        'aleatoire': strategie_aleatoire,
         'chasseur': strategie_chasseur,
-        'fuyard': strategie_fuyard,
-        'sniper': strategie_sniper,
-        'kamikaze': strategie_kamikaze
     }
     
     strategie_fn = strategies.get(strategie, strategie_chasseur)
@@ -338,11 +212,7 @@ def jouer(strategie="chasseur", delai=0.3):
 if __name__ == "__main__":
     import sys
     
-    # Récupérer la stratégie depuis les arguments
-    if len(sys.argv) > 1:
-        strategie = sys.argv[1]
-    else:
-        strategie = "chasseur"
+    strategie = "chasseur"
     
     # Récupérer le délai
     if len(sys.argv) > 2:
