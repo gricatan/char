@@ -195,7 +195,7 @@ while True:
 
 ## 📄 Licence
 
-Libre d'utilisation pour notre serveur Discord DevHub
+Libre d'utilisation pour notre serveur Discord DevHub : https://discord.gg/gzQsFdHQPC
 
 ## 🤝 Contribution
 
