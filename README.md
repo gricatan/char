@@ -1,6 +1,7 @@
 # Battle Arena - Multiplayer Shooting Game
 
 Jeu de tir multijoueur avec API REST. Les joueurs se déplacent librement sur une carte 100×100, tirent des balles et s'affrontent en temps réel.
+Un site de visualisation est disponible [ici](https://devhubcommunity.duckdns.org/articles/battle-arena-spectator.php).
 
 ## 🎮 Caractéristiques
 
