@@ -4,6 +4,7 @@ API FastAPI - Point d'entrée pour les clients
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
+from contextlib import asynccontextmanager
 from typing import Optional
 import re
 import time
@@ -40,22 +41,6 @@ class ShootRequest(BaseModel):
     direction_y: float
 
 
-# Initialiser FastAPI
-app = FastAPI(
-    title="Battle Arena API",
-    description="Multiplayer shooting game API",
-    version="1.0.0"
-)
-
-# CORS - Autoriser tous les origins pour le dev
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Initialiser Game Engine
 game = GameEngine()
 
@@ -82,6 +67,38 @@ def check_rate_limit(ip: str) -> bool:
     # Ajouter timestamp
     rate_limit_store[ip].append(current_time)
     return True
+
+
+# ==================== LIFESPAN ====================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Démarrer et arrêter le game engine proprement"""
+    print("🚀 Démarrage du serveur...")
+    game.start()
+    print(f"✅ Serveur prêt sur port {config.SERVER_PORT}")
+    yield
+    print("🛑 Arrêt du serveur...")
+    game.stop()
+    print("✅ Serveur arrêté proprement")
+
+
+# Initialiser FastAPI
+app = FastAPI(
+    title="Battle Arena API",
+    description="Multiplayer shooting game API",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# CORS - Autoriser tous les origins pour le dev
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.middleware("http")
@@ -203,24 +220,6 @@ def get_stats():
 def health_check():
     """Healthcheck pour monitoring"""
     return {"status": "healthy", "game_running": game.running}
-
-
-# ==================== EVENTS ====================
-
-@app.on_event("startup")
-async def startup_event():
-    """Démarrer le game engine au lancement"""
-    print("🚀 Démarrage du serveur...")
-    game.start()
-    print(f"✅ Serveur prêt sur port {config.SERVER_PORT}")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Arrêter proprement le game engine"""
-    print("🛑 Arrêt du serveur...")
-    game.stop()
-    print("✅ Serveur arrêté proprement")
 
 
 # Point d'entrée pour uvicorn
