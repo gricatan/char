@@ -26,75 +26,6 @@ game-server/
 └── README.md            # Ce fichier
 ```
 
-## 🚀 Installation Locale (Dev)
-
-### Prérequis
-- Python 3.11+
-- pip
-
-### Installation
-
-```bash
-# Cloner/télécharger les fichiers
-cd game-server
-
-# Créer environnement virtuel
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-venv\Scripts\activate     # Windows
-
-# Installer dépendances
-pip install -r requirements.txt
-
-# Lancer le serveur
-python main.py
-```
-
-Le serveur démarre sur `http://localhost:8000`
-
-## 🌐 Déploiement VPS (Production)
-
-### Sur VPS Debian (Hostinger)
-
-```bash
-# 1. Téléverser tous les fichiers sur le VPS
-scp -r game-server/* user@your-vps:/home/user/game-server/
-
-# 2. Se connecter au VPS
-ssh user@your-vps
-
-# 3. Lancer le script de déploiement
-cd /home/user/game-server
-chmod +x deploy.sh
-./deploy.sh
-```
-
-Le script:
-- Installe Python 3.11
-- Crée un service systemd
-- Configure le démarrage automatique
-- Lance le serveur
-
-### Gestion du Service
-
-```bash
-# Voir le statut
-sudo systemctl status battle-arena
-
-# Voir les logs en temps réel
-sudo journalctl -u battle-arena -f
-
-# Redémarrer
-sudo systemctl restart battle-arena
-
-# Arrêter
-sudo systemctl stop battle-arena
-
-# Démarrer
-sudo systemctl start battle-arena
-```
-
 ## 📡 API Endpoints
 
 ### POST /api/join
@@ -227,47 +158,32 @@ Statistiques du jeu
 }
 ```
 
-## 🤖 Client Exemple
-
-### Lancer un bot
-
-```bash
-# Bot avec IA simple
-python client_example.py MonBot simple
-
-# Bot agressif (fonce sur les ennemis)
-python client_example.py Rambo aggressive
-
-# Bot défensif (garde ses distances)
-python client_example.py Sniper defensive
-```
-
 ### Créer son propre client
 
 ```python
 import requests
 
 # Rejoindre
-response = requests.post("http://localhost:8000/api/join", 
+response = requests.post("https://devhubcommunity.duckdns.org/api/api/join", 
                          json={"username": "MyBot"})
 player_id = response.json()['player_id']
 
 # Boucle de jeu
 while True:
     # Récupérer état
-    state = requests.get("http://localhost:8000/api/state").json()
+    state = requests.get("https://devhubcommunity.duckdns.org/api/api/state").json()
     
     # Décider action...
     
     # Bouger
-    requests.post("http://localhost:8000/api/move", json={
+    requests.post("https://devhubcommunity.duckdns.org/api/api/move", json={
         "player_id": player_id,
         "direction_x": 1.0,
         "direction_y": 0.0
     })
     
     # Tirer
-    requests.post("http://localhost:8000/api/shoot", json={
+    requests.post("hhttps://devhubcommunity.duckdns.org/api/api/shoot", json={
         "player_id": player_id,
         "direction_x": 0.0,
         "direction_y": -1.0
@@ -276,124 +192,10 @@ while True:
     time.sleep(0.2)
 ```
 
-## ⚙️ Configuration
-
-Modifier `config.py` pour changer:
-
-```python
-# Vitesses
-PLAYER_SPEED = 5.0       # unités/seconde
-BULLET_SPEED = 15.0      # unités/seconde
-
-# Combat
-PLAYER_MAX_HEALTH = 100
-BULLET_DAMAGE = 10
-BULLET_COOLDOWN = 0.5    # secondes
-
-# Limites
-MAX_PLAYERS = 100
-MAX_BULLETS_PER_PLAYER = 5
-
-# Map
-MAP_WIDTH = 100.0
-MAP_HEIGHT = 100.0
-OBSTACLE_COUNT = 20
-```
-
-## 🎯 Stratégies de Jeu
-
-### IA Simple (Équilibrée)
-- Maintient distance ~15-20 unités
-- Strafe autour de l'ennemi
-- Tire en continu
-
-### IA Agressive
-- Fonce directement sur l'ennemi
-- Combat rapproché
-- Haut risque, haute récompense
-
-### IA Défensive (Sniper)
-- Maintient distance ~30 unités
-- Fuit si trop proche
-- Tirs précis à longue distance
-
-## 📊 Stats Persistantes
-
-Les statistiques sont sauvegardées dans `game_stats.json`:
-- Total kills all-time
-- Total deaths all-time
-- Total shots all-time
-
-Survit aux redémarrages du serveur.
-
-## 🔧 Développement
-
-### Tester localement
-
-```bash
-# Terminal 1: Serveur
-python main.py
-
-# Terminal 2: Client bot 1
-python client_example.py Alice simple
-
-# Terminal 3: Client bot 2
-python client_example.py Bob aggressive
-
-# Terminal 4: Observer l'état
-watch -n 1 'curl -s http://localhost:8000/api/stats | jq'
-```
-
-### Debug
-
-```bash
-# Logs du serveur (si systemd)
-sudo journalctl -u battle-arena -f
-
-# Ou logs stdout si lancé manuellement
-python main.py
-```
-
-## 🐛 Troubleshooting
-
-### Port déjà utilisé
-```bash
-# Changer le port dans config.py
-SERVER_PORT = 8001
-```
-
-### Serveur inaccessible
-```bash
-# Vérifier firewall
-sudo ufw allow 8000/tcp
-
-# Vérifier que le serveur écoute
-netstat -tulpn | grep 8000
-```
-
-### Client ne peut pas se connecter
-```bash
-# Vérifier que l'API répond
-curl http://localhost:8000/
-
-# Vérifier IP du serveur
-hostname -I
-```
-
-## 📝 TODO / Améliorations Futures
-
-- [ ] Authentification (tokens)
-- [ ] Teams (rouge vs bleu)
-- [ ] Power-ups (santé, vitesse, dégâts)
-- [ ] Dashboard web pour observer
-- [ ] Replay système
-- [ ] Statistiques par joueur détaillées
-- [ ] Matchmaking
-- [ ] Modes de jeu (capture du drapeau, etc.)
 
 ## 📄 Licence
 
-Libre d'utilisation pour votre serveur Discord.
+Libre d'utilisation pour notre serveur Discord DevHub
 
 ## 🤝 Contribution
 
