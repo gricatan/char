@@ -7,6 +7,7 @@ import random
 import uuid
 import json
 import os
+import math
 from typing import Dict, List, Optional, Tuple
 from entities import Player, Bullet, Obstacle, GameStats
 from physics import (
@@ -142,13 +143,7 @@ class GameEngine:
                     if bullet.bounces >= 3:
                         bullets_to_remove.append(bullet_id)
                         break
-                    # Déterminer côté touché
-                    overlap_x = min(abs(bullet.x - obstacle.x), abs(bullet.x - (obstacle.x + obstacle.width)))
-                    overlap_y = min(abs(bullet.y - obstacle.y), abs(bullet.y - (obstacle.y + obstacle.height)))
-                    if overlap_x < overlap_y:
-                        bullet.vx *= -1
-                    else:
-                        bullet.vy *= -1
+                    self._bounce_bullet_off_obstacle(bullet, obstacle)
                     bullet.bounces += 1
                     break
 
@@ -167,6 +162,49 @@ class GameEngine:
         # Supprimer balles
         for bullet_id in bullets_to_remove:
             del self.bullets[bullet_id]
+
+    def _bounce_bullet_off_obstacle(self, bullet: Bullet, obstacle: Obstacle):
+        """Résoudre collision balle-obstacle puis réfléchir la vitesse."""
+        ox, oy = obstacle.x, obstacle.y
+        ow, oh = obstacle.width, obstacle.height
+        radius = config.BULLET_RADIUS
+
+        closest_x = max(ox, min(bullet.x, ox + ow))
+        closest_y = max(oy, min(bullet.y, oy + oh))
+        dx = bullet.x - closest_x
+        dy = bullet.y - closest_y
+
+        if dx == 0.0 and dy == 0.0:
+            left = abs(bullet.x - ox)
+            right = abs((ox + ow) - bullet.x)
+            top = abs(bullet.y - oy)
+            bottom = abs((oy + oh) - bullet.y)
+            min_pen = min(left, right, top, bottom)
+
+            if min_pen == left:
+                nx, ny = -1.0, 0.0
+                bullet.x = ox - radius
+            elif min_pen == right:
+                nx, ny = 1.0, 0.0
+                bullet.x = ox + ow + radius
+            elif min_pen == top:
+                nx, ny = 0.0, -1.0
+                bullet.y = oy - radius
+            else:
+                nx, ny = 0.0, 1.0
+                bullet.y = oy + oh + radius
+        else:
+            dist = math.sqrt(dx * dx + dy * dy)
+            nx = dx / dist
+            ny = dy / dist
+            penetration = radius - dist
+            if penetration > 0:
+                bullet.x += nx * penetration
+                bullet.y += ny * penetration
+
+        dot = bullet.vx * nx + bullet.vy * ny
+        bullet.vx -= 2 * dot * nx
+        bullet.vy -= 2 * dot * ny
     
     def _check_collisions(self):
         """Détection collisions balles-joueurs"""
