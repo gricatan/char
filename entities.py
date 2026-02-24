@@ -45,6 +45,7 @@ class Bullet:
     y: float
     vx: float  # Vélocité X (direction normalisée × vitesse)
     vy: float  # Vélocité Y
+    bounces: int = 0
     damage: int = 10
     created_at: float = field(default_factory=time.time)
     

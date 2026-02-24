@@ -10,7 +10,8 @@ import os
 from typing import Dict, List, Optional, Tuple
 from entities import Player, Bullet, Obstacle, GameStats
 from physics import (
-    normalize_vector, check_bullet_player_collision, 
+    normalize_vector, check_bullet_player_collision,
+    check_bullet_obstacle_collision,
     find_valid_spawn_position, is_position_valid, clamp_to_map
 )
 import config
@@ -128,17 +129,30 @@ class GameEngine:
     
     def _update_physics(self):
         """Mise à jour physique - déplacement des balles"""
-
-        """----------------------------------------------------------------------------------------------
-        PHYSIQUE A MODIFIEZ, REBON SUR OBSTACLE
-        """
-
         bullets_to_remove = []
         
         for bullet_id, bullet in self.bullets.items():
             # Déplacer balle
             bullet.x += bullet.vx * config.TICK_DURATION
             bullet.y += bullet.vy * config.TICK_DURATION
+
+            # Vérifier rebonds sur obstacles
+            for obstacle in self.obstacles:
+                if check_bullet_obstacle_collision(bullet, obstacle):
+                    if bullet.bounces >= 3:
+                        bullets_to_remove.append(bullet_id)
+                        break
+                    # Déterminer côté touché
+                    overlap_x = min(abs(bullet.x - obstacle.x), abs(bullet.x - (obstacle.x + obstacle.width)))
+                    overlap_y = min(abs(bullet.y - obstacle.y), abs(bullet.y - (obstacle.y + obstacle.height)))
+                    if overlap_x < overlap_y:
+                        bullet.vx *= -1
+                    else:
+                        bullet.vy *= -1
+                    bullet.bounces += 1
+                    break
+
+
             
             # Vérifier limites map
             if (bullet.x < 0 or bullet.x > config.MAP_WIDTH or
