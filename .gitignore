@@ -11,6 +11,8 @@ ENV/
 dist/
 build/
 visualiser.py
+bot_exemple.py
+vizualizer.py
 
 # Game data
 game_stats.json

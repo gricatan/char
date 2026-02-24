@@ -6,6 +6,12 @@ from typing import Tuple, Optional, List
 from entities import Player, Bullet, Obstacle
 import config
 
+def check_bullet_obstacle_collision(bullet, obstacle) -> bool:
+    """Vérifier collision balle-obstacle"""
+    return circle_rect_collision(
+        bullet.x, bullet.y, config.BULLET_RADIUS,
+        obstacle.x, obstacle.y, obstacle.width, obstacle.height
+    )
 
 def normalize_vector(x: float, y: float) -> Tuple[float, float]:
     """Normaliser un vecteur (retourne vecteur unitaire)"""
