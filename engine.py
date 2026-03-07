@@ -338,6 +338,15 @@ class GameEngine:
             'health': config.PLAYER_MAX_HEALTH
         }
     
+    def leave_game(self, player_id: str) -> dict:
+        """Un joueur quitte la partie volontairement"""
+        if player_id in self.players:
+            username = self.players[player_id].username
+            del self.players[player_id]
+            print(f"👋 {username} a quitté la partie ({player_id})")
+            return {'success': True}
+        return {'success': False, 'error': 'Player not found'}
+
     def player_move(self, player_id: str, direction_x: float, direction_y: float) -> dict:
         """Déplacer un joueur"""
         current_time = time.time()
@@ -431,10 +440,10 @@ class GameEngine:
         return {'success': True, 'bullet_id': bullet_id}
     
     def get_state(self) -> dict:
-        """Récupérer l'état complet du jeu"""
+        """Récupérer l'état complet du jeu (version publique)"""
         return {
-            'players': [p.to_dict() for p in self.players.values()],
-            'bullets': [b.to_dict() for b in self.bullets.values()],
+            'players': [p.to_public_dict() for p in self.players.values()],
+            'bullets': [b.to_public_dict() for b in self.bullets.values()],
             'obstacles': [o.to_dict() for o in self.obstacles],
             'map': {
                 'width': config.MAP_WIDTH,

@@ -41,6 +41,10 @@ class ShootRequest(BaseModel):
     direction_y: float
 
 
+class LeaveRequest(BaseModel):
+    player_id: str
+
+
 # Initialiser Game Engine
 game = GameEngine()
 
@@ -87,7 +91,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Battle Arena API",
     description="Multiplayer shooting game API",
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan
 )
 
@@ -123,14 +127,14 @@ def root():
     stats = game.get_stats()
     return {
         "game": "Battle Arena",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "status": "online",
         "players_online": stats['game']['players_online'],
         "uptime_seconds": stats['server']['uptime_seconds']
     }
 
 
-@app.post("/api/join")
+@app.post("/join")
 def join_game(request: JoinRequest):
     """
     Rejoindre la partie
@@ -147,12 +151,27 @@ def join_game(request: JoinRequest):
     return result
 
 
-@app.post("/api/move")
+@app.post("/leave")
+def leave_game(request: LeaveRequest):
+    """
+    Quitter la partie volontairement
+    
+    - **player_id**: ID du joueur (obtenu via /join)
+    """
+    result = game.leave_game(request.player_id)
+    
+    if not result.get('success', False):
+        raise HTTPException(status_code=400, detail=result.get('error'))
+    
+    return result
+
+
+@app.post("/move")
 def move_player(request: MoveRequest):
     """
     Déplacer son joueur
     
-    - **player_id**: ID du joueur (obtenu via /api/join)
+    - **player_id**: ID du joueur (obtenu via /join)
     - **direction_x**: Direction X (-1 à 1, sera normalisé)
     - **direction_y**: Direction Y (-1 à 1, sera normalisé)
     
@@ -167,7 +186,7 @@ def move_player(request: MoveRequest):
     return result
 
 
-@app.post("/api/shoot")
+@app.post("/shoot")
 def shoot(request: ShootRequest):
     """
     Tirer une balle
@@ -187,13 +206,13 @@ def shoot(request: ShootRequest):
     return result
 
 
-@app.get("/api/state")
+@app.get("/state")
 def get_game_state():
     """
     Récupérer l'état complet du jeu
     
     Retourne:
-    - Liste de tous les joueurs (position, vie, kills)
+    - Liste de tous les joueurs (position, vie, kills) - IDs MASQUÉS
     - Liste de toutes les balles actives
     - Liste des obstacles
     - Dimensions de la map
@@ -203,7 +222,7 @@ def get_game_state():
     return game.get_state()
 
 
-@app.get("/api/stats")
+@app.get("/stats")
 def get_stats():
     """
     Récupérer les statistiques du jeu
@@ -216,7 +235,7 @@ def get_stats():
     return game.get_stats()
 
 
-@app.get("/api/health")
+@app.get("/health")
 def health_check():
     """Healthcheck pour monitoring"""
     return {"status": "healthy", "game_running": game.running}

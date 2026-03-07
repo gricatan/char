@@ -21,9 +21,19 @@ class Player:
     last_activity: float = field(default_factory=time.time)
     
     def to_dict(self) -> dict:
-        """Convertir en dict pour l'API"""
+        """Convertir en dict complet (interne)"""
         return {
             'id': self.entity_id,
+            'username': self.username,
+            'x': round(self.x, 2),
+            'y': round(self.y, 2),
+            'health': self.health,
+            'kills': self.kills
+        }
+
+    def to_public_dict(self) -> dict:
+        """Convertir en dict pour l'API publique (sans ID sensible)"""
+        return {
             'username': self.username,
             'x': round(self.x, 2),
             'y': round(self.y, 2),
@@ -50,10 +60,19 @@ class Bullet:
     created_at: float = field(default_factory=time.time)
     
     def to_dict(self) -> dict:
-        """Convertir en dict pour l'API"""
+        """Convertir en dict complet (interne)"""
         return {
             'id': self.entity_id,
             'owner_id': self.owner_id,
+            'x': round(self.x, 2),
+            'y': round(self.y, 2),
+            'vx': round(self.vx, 2),
+            'vy': round(self.vy, 2)
+        }
+
+    def to_public_dict(self) -> dict:
+        """Convertir en dict pour l'API publique (sans ID sensible)"""
+        return {
             'x': round(self.x, 2),
             'y': round(self.y, 2),
             'vx': round(self.vx, 2),

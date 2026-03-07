@@ -11,6 +11,7 @@ Un site de visualisation est disponible [ici](https://devhubcommunity.duckdns.or
 - **Collisions:** Joueurs bloqués par obstacles et autres joueurs
 - **Balles:** Traversent les obstacles, max 5 simultanées par joueur
 - **Respawn:** 10 secondes de cooldown après mort
+- **Sécurité:** Les IDs des joueurs ne sont jamais exposés publiquement
 
 ## 📁 Structure
 
@@ -29,7 +30,7 @@ game-server/
 
 ## 📡 API Endpoints
 
-### POST /api/join
+### POST /join
 Rejoindre la partie
 
 **Request:**
@@ -49,7 +50,24 @@ Rejoindre la partie
 }
 ```
 
-### POST /api/move
+### POST /leave
+Quitter la partie volontairement
+
+**Request:**
+```json
+{
+  "player_id": "alice_a1b2c3d4"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+### POST /move
 Déplacer son joueur
 
 **Request:**
@@ -69,7 +87,7 @@ Déplacer son joueur
 }
 ```
 
-### POST /api/shoot
+### POST /shoot
 Tirer une balle
 
 **Request:**
@@ -89,15 +107,14 @@ Tirer une balle
 }
 ```
 
-### GET /api/state
-Récupérer l'état complet du jeu
+### GET /state
+Récupérer l'état complet du jeu. **Note: Les IDs ne sont pas renvoyés pour éviter le vol de session.**
 
 **Response:**
 ```json
 {
   "players": [
     {
-      "id": "alice_a1b2c3d4",
       "username": "alice",
       "x": 45.3,
       "y": 67.8,
@@ -107,8 +124,6 @@ Récupérer l'état complet du jeu
   ],
   "bullets": [
     {
-      "id": "bullet_xyz",
-      "owner_id": "alice_a1b2c3d4",
       "x": 23.1,
       "y": 45.6,
       "vx": 10,
@@ -131,7 +146,7 @@ Récupérer l'état complet du jeu
 }
 ```
 
-### GET /api/stats
+### GET /stats
 Statistiques du jeu
 
 **Response:**
@@ -165,26 +180,26 @@ Statistiques du jeu
 import requests
 
 # Rejoindre
-response = requests.post("https://devhubcommunity.duckdns.org/api/api/join", 
+response = requests.post("https://devhubcommunity.duckdns.org/api/join", 
                          json={"username": "MyBot"})
 player_id = response.json()['player_id']
 
 # Boucle de jeu
 while True:
     # Récupérer état
-    state = requests.get("https://devhubcommunity.duckdns.org/api/api/state").json()
+    state = requests.get("https://devhubcommunity.duckdns.org/api/state").json()
     
     # Décider action...
     
     # Bouger
-    requests.post("https://devhubcommunity.duckdns.org/api/api/move", json={
+    requests.post("https://devhubcommunity.duckdns.org/api/move", json={
         "player_id": player_id,
         "direction_x": 1.0,
         "direction_y": 0.0
     })
     
     # Tirer
-    requests.post("hhttps://devhubcommunity.duckdns.org/api/api/shoot", json={
+    requests.post("https://devhubcommunity.duckdns.org/api/shoot", json={
         "player_id": player_id,
         "direction_x": 0.0,
         "direction_y": -1.0
