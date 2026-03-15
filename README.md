@@ -13,21 +13,6 @@ Un site de visualisation est disponible [ici](https://devhubcommunity.duckdns.or
 - **Respawn:** 10 secondes de cooldown après mort
 - **Sécurité:** Les IDs des joueurs ne sont jamais exposés publiquement
 
-## 📁 Structure
-
-```
-game-server/
-├── main.py              # API FastAPI
-├── engine.py            # Moteur de jeu (game loop 60 FPS)
-├── entities.py          # Classes Player, Bullet, Obstacle
-├── physics.py           # Collisions et mouvement
-├── config.py            # Configuration (vitesses, cooldowns, etc.)
-├── client_example.py    # Client bot exemple
-├── requirements.txt     # Dépendances Python
-├── deploy.sh            # Script déploiement VPS
-└── README.md            # Ce fichier
-```
-
 ## 📡 API Endpoints
 
 ### POST /join
